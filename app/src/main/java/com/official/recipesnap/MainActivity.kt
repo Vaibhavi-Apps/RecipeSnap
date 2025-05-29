@@ -1,6 +1,7 @@
 package com.official.recipesnap
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,9 +10,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,9 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,7 +78,6 @@ fun RecipeSnapScreen() {
     val coroutineScope = rememberCoroutineScope()
     var resultText by remember { mutableStateOf("Result will appear here") }
 
-
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var fileName by remember { mutableStateOf("No file chosen") }
     var isLoading by remember { mutableStateOf(false) }
@@ -79,148 +89,165 @@ fun RecipeSnapScreen() {
         imageUri = uri
         fileName = uri?.lastPathSegment ?: "No file chosen"
     }
+    val PastelBlue = Color(0xFFFFB541)
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "App Icon",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Recipe Snap", color = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        },
         content = { padding ->
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(16.dp)
                     .fillMaxSize()
+                    .background(Color.White)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Snap a photo of your food, and let AI whip up a recipe for you!",
-                    textAlign = TextAlign.Center,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    text = "Upload Your Image",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = "Take a clear picture of your food items. PNG, JPG, GIF supported (max 5MB).",
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(onClick = { launcher.launch("image/*") }) {
-                    Text("Food Image")
-                }
-
-                Text(
-                    text = fileName,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (imageUri != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUri),
-                        contentDescription = "Selected Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.food_dinner_lunch_knife_fork_svgrepo_com),
+                        contentDescription = "App Icon",
+                        tint = PastelBlue,
+                        modifier = Modifier.size(40.dp)
                     )
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.placeholder_image),
-                        contentDescription = "Placeholder",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Recipe Snap",
+                        color = PastelBlue,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 28.sp,
+                        fontFamily = FontFamily.Cursive
                     )
                 }
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(2.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Snap a photo of your food 🍱",
+                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = PastelBlue,
+                            fontFamily = FontFamily.Serif
+                        )
+                        Text(
+                            text = "Let AI whip up a recipe for you!",
+                            fontSize = 16.sp,
+                            color = Color.DarkGray,
+                            modifier = Modifier.padding(top = 4.dp),
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
+                }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                /*Button(
-                    onClick = {
-                        if (imageUri != null) {
-                            coroutineScope.launch {
-                                isLoading = true
-                                generatedRecipeText = ""
-                                val result = generateRecipeFromImage(context, imageUri!!)
-                                generatedRecipeText = result
-                                isLoading = false
-                            }
-                        } else {
-                            Toast.makeText(context, "Please select an image first.", Toast.LENGTH_SHORT).show()
+                val size = 280.dp
+
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .clickable { launcher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Draw gray background and dashed border
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        drawCircle(
+                            color = Color(0xFFF0F0F0), // Gray background
+                            style = Fill
+                        )
+
+                        drawCircle(
+                            color = Color.Gray,
+                            style = Stroke(
+                                width = 3.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 8f))
+                            )
+                        )
+                    }
+
+                    // Image or placeholder content
+                    if (imageUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(imageUri),
+                            contentDescription = "Selected Image",
+                            modifier = Modifier
+                                .size(size - 12.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .size(size - 24.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_camera_enhance_24),
+                                contentDescription = null,
+                                tint = Color.Gray,
+                                modifier = Modifier.size(45.dp)
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Tap to select image",
+                                fontSize = 14.sp,
+                                color = Color.DarkGray,
+                                fontFamily = FontFamily.Serif
+                            )
+                            Text(
+                                text = "PNG, JPG (max 5MB)",
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                fontFamily = FontFamily.Serif
+                            )
                         }
                     }
-                ) {
-                    Text("Get My Recipe!")
-                }*/
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = {
                         coroutineScope.launch {
                             val recipe = imageUri?.let { uploadImageAndGetRecipe(context, it) }
                             resultText = recipe ?: "No recipe found"
-                            Log.e("Recipe", recipe.toString())
                         }
-                    }) {
-                    Text("Get Recipe")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(start = 16.dp, end = 16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = PastelBlue),
+                ) {
+                    Text("Get Recipe", color = Color.White, fontSize = 16.sp, fontFamily = FontFamily.Serif)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = resultText,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 if (isLoading) {
-                    CircularProgressIndicator()
-                } else if (generatedRecipeText.isNotBlank()) {
+                    CircularProgressIndicator(color = PastelBlue)
+                } else if (resultText.isNotBlank()) {
                     Text(
-                        text = generatedRecipeText,
+                        text = resultText,
                         fontSize = 16.sp,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray,
+                        fontFamily = FontFamily.Serif
                     )
                 }
             }
         }
     )
+
+
 }
 
 suspend fun uploadImageAndGetRecipe(context: Context, imageUri: Uri): String {
