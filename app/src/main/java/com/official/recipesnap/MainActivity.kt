@@ -1,16 +1,16 @@
 package com.official.recipesnap
 
 import android.content.Context
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,45 +18,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.rememberAsyncImagePainter
 import com.official.recipesnap.ui.theme.RecipeSnapTheme
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,22 +57,20 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeSnapScreen() {
+fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var resultText by remember { mutableStateOf("Result will appear here") }
-
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var fileName by remember { mutableStateOf("No file chosen") }
-    var isLoading by remember { mutableStateOf(false) }
-    var generatedRecipeText by remember { mutableStateOf("") }
+    
+    val uiState by viewModel.uiState.collectAsState()
+    val apiKey = stringResource(id = R.string.gemini_api_key)
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         imageUri = uri
-        fileName = uri?.lastPathSegment ?: "No file chosen"
+        viewModel.resetState()
     }
+    
     val PastelBlue = Color(0xFFFFB541)
 
     Scaffold(
@@ -215,9 +197,11 @@ fun RecipeSnapScreen() {
 
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            val recipe = imageUri?.let { uploadImageAndGetRecipe(context, it) }
-                            resultText = recipe ?: "No recipe found"
+                        imageUri?.let { uri ->
+                            val bitmap = uriToBitmap(context, uri)
+                            if (bitmap != null) {
+                                viewModel.getRecipeFromImage(bitmap, apiKey)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -225,83 +209,57 @@ fun RecipeSnapScreen() {
                         .height(50.dp)
                         .padding(start = 16.dp, end = 16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = PastelBlue),
+                    enabled = imageUri != null && uiState !is RecipeUiState.Loading
                 ) {
                     Text("Get Recipe", color = Color.White, fontSize = 16.sp, fontFamily = FontFamily.Serif)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (isLoading) {
-                    CircularProgressIndicator(color = PastelBlue)
-                } else if (resultText.isNotBlank()) {
-                    Text(
-                        text = resultText,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(12.dp),
-                        textAlign = TextAlign.Center,
-                        color = Color.Gray,
-                        fontFamily = FontFamily.Serif
-                    )
+                when (val state = uiState) {
+                    is RecipeUiState.Idle -> {
+                        // Show nothing
+                    }
+                    is RecipeUiState.Loading -> {
+                        CircularProgressIndicator(color = PastelBlue)
+                    }
+                    is RecipeUiState.Success -> {
+                        Text(
+                            text = state.recipe,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Start,
+                            color = Color.DarkGray,
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
+                    is RecipeUiState.Error -> {
+                        Text(
+                            text = state.message,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.error,
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
                 }
             }
         }
     )
-
-
 }
 
-suspend fun uploadImageAndGetRecipe(context: Context, imageUri: Uri): String {
-    val contentResolver = context.contentResolver
-    val inputStream = contentResolver.openInputStream(imageUri)
-    val imageBytes = inputStream?.readBytes() ?: return "Unable to read image"
-
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                ignoreUnknownKeys = true
-            })
+fun uriToBitmap(context: Context, uri: Uri): Bitmap? {
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            ImageDecoder.decodeBitmap(source)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
         }
-    }
-
-    val response: HttpResponse = client.post("http://192.168.1.14:8080/upload") {
-        setBody(
-            MultiPartFormDataContent(
-                formData {
-                    append(
-                        "file",
-                        imageBytes,
-                        Headers.build {
-                            append(HttpHeaders.ContentType, "image/jpg")
-                            append(HttpHeaders.ContentDisposition, "filename=\"image.jpg\"")
-                        }
-                    )
-                }
-            )
-        )
-    }
-
-    val json = Json { ignoreUnknownKeys = true }
-
-    try {
-        val responseString = response.bodyAsText()
-        Log.e("Recipe Raw", responseString)
-
-        // First, parse outer JSON
-        val outer = json.decodeFromString<RecipeWrapper>(responseString)
-
-        // Now parse the inner recipe string as JSON too
-        val innerJson = json.decodeFromString<GeminiResponse>(outer.recipe)
-
-        val text = innerJson.candidates.firstOrNull()
-            ?.content?.parts?.firstOrNull()?.text ?: "No recipe found"
-
-        return text
     } catch (e: Exception) {
-        e.printStackTrace()
-        return "Failed to extract recipe: ${e.message}"
-    } finally {
-        client.close()
+        null
     }
 }
 

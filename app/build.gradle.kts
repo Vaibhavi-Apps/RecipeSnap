@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
-    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -72,18 +71,11 @@ dependencies {
         debugImplementation(libs.androidx.ui.tooling)
         debugImplementation(libs.androidx.ui.test.manifest)
 
-        //Gemini API
-        //implementation("com.google.ai.client:generativeai:0.5.1")
-
-        implementation("com.squareup.retrofit2:retrofit:2.9.0")
-        implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-        implementation("io.ktor:ktor-client-core:2.3.7")
-        implementation("io.ktor:ktor-client-cio:2.3.7")
-        implementation("io.ktor:ktor-client-okhttp:2.3.7") // Optional
-        implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
-        implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+        // Gemini API
+        implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+        
+        // ViewModel for Compose
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     }
 
 }
