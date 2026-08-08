@@ -7,10 +7,19 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.FileProvider
+import io.noties.markwon.Markwon
+import java.io.File
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,13 +71,27 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     
     val uiState by viewModel.uiState.collectAsState()
-    val apiKey = stringResource(id = R.string.gemini_api_key)
+    val apiKey = BuildConfig.GEMINI_API_KEY.trim()
+    
+    android.util.Log.e("RecipeSnap", "API Key used: $apiKey")
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        imageUri = uri
-        viewModel.resetState()
+        if (uri != null) {
+            imageUri = uri
+            viewModel.resetState()
+        }
+    }
+
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            imageUri = tempCameraUri
+            viewModel.resetState()
+        }
     }
     
     val PastelBlue = Color(0xFFFFB541)
@@ -133,8 +156,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
 
                 Box(
                     modifier = Modifier
-                        .size(size)
-                        .clickable { launcher.launch("image/*") },
+                        .size(size),
                     contentAlignment = Alignment.Center
                 ) {
                     // Draw gray background and dashed border
@@ -178,18 +200,35 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "Tap to select image",
+                                text = "Choose an image below",
                                 fontSize = 14.sp,
                                 color = Color.DarkGray,
                                 fontFamily = FontFamily.Serif
                             )
-                            Text(
-                                text = "PNG, JPG (max 5MB)",
-                                fontSize = 12.sp,
-                                color = Color.Gray,
-                                fontFamily = FontFamily.Serif
-                            )
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    OutlinedButton(
+                        onClick = { launcher.launch("image/*") },
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    ) {
+                        Text("Gallery")
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            tempCameraUri = createImageUri(context)
+                            cameraLauncher.launch(tempCameraUri!!)
+                        },
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    ) {
+                        Text("Camera")
                     }
                 }
 
@@ -224,13 +263,8 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                         CircularProgressIndicator(color = PastelBlue)
                     }
                     is RecipeUiState.Success -> {
-                        Text(
-                            text = state.recipe,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(16.dp),
-                            textAlign = TextAlign.Start,
-                            color = Color.DarkGray,
-                            fontFamily = FontFamily.Serif
+                        RecipeCardStack(
+                            recipes = state.recipes
                         )
                     }
                     is RecipeUiState.Error -> {
@@ -261,6 +295,14 @@ fun uriToBitmap(context: Context, uri: Uri): Bitmap? {
     } catch (e: Exception) {
         null
     }
+}
+
+fun createImageUri(context: Context): Uri {
+    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val storageDir: File = File(context.cacheDir, "images").apply { mkdirs() }
+    val file = File.createTempFile(imageFileName, ".jpg", storageDir)
+    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
 @Preview(showBackground = true)

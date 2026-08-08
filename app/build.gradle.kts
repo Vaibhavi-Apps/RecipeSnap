@@ -1,7 +1,11 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
     id("com.google.gms.google-services")
 }
 
@@ -11,13 +15,21 @@ android {
 
     defaultConfig {
         applicationId = "com.official.recipesnap"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resValue("string", "gemini_api_key", "\"${project.properties["GEMINI_API_KEY"]}\"")
+        
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+        }
+        val apiKey = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        
+        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
 
     }
 
@@ -39,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -76,6 +89,15 @@ dependencies {
         
         // ViewModel for Compose
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+
+        // Markdown renderer
+        implementation("io.noties.markwon:core:4.6.2")
+        
+        // JSON Serialization
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+        
+        // Health Connect
+        implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
     }
 
 }
