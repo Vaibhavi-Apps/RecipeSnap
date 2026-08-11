@@ -71,6 +71,10 @@ class RecipeViewModel : ViewModel() {
     fun resetState() {
         _uiState.value = RecipeUiState.Idle
     }
+
+    fun restoreRecipes(recipes: List<RecipeOption>) {
+        _uiState.value = RecipeUiState.Success(recipes)
+    }
 }
 
 sealed interface RecipeUiState {

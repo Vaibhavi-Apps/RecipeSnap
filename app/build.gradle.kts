@@ -28,8 +28,10 @@ android {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
         val apiKey = localProperties.getProperty("GEMINI_API_KEY") ?: ""
+        val spoonacularApiKey = localProperties.getProperty("SPOONACULAR_API_KEY") ?: ""
         
         buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        buildConfigField("String", "SPOONACULAR_API_KEY", "\"$spoonacularApiKey\"")
 
     }
 
@@ -68,9 +70,11 @@ dependencies {
         implementation(libs.androidx.ui.graphics)
         implementation(libs.androidx.ui.tooling.preview)
         implementation(libs.androidx.material3) // Use material or material3 depending on theme
+        implementation(libs.androidx.material.icons.extended)
 
-        // Coil for loading selected image preview
+        // Coil for loading selected image preview and network images
         implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+        implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
         implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
         implementation("com.google.firebase:firebase-analytics")
         // Testing
@@ -95,6 +99,11 @@ dependencies {
         
         // JSON Serialization
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+        
+        // Retrofit & OkHttp
+        implementation(libs.retrofit)
+        implementation(libs.retrofit.kotlinx.serialization)
+        implementation(libs.okhttp)
         
         // Health Connect
         implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
