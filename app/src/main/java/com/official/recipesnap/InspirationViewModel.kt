@@ -1,47 +1,61 @@
 package com.official.recipesnap
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-sealed interface InspirationUiState {
-    object Loading : InspirationUiState
-    data class Success(val recipes: List<RecipeDto>) : InspirationUiState
-    data class Error(val message: String) : InspirationUiState
+sealed interface MySnapsUiState {
+    object Loading : MySnapsUiState
+    data class Success(val snaps: List<SavedSnap>) : MySnapsUiState
+    data class Error(val message: String) : MySnapsUiState
 }
 
-class InspirationViewModel : ViewModel() {
-    private val api = SpoonacularApi.create()
+class InspirationViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = SnapRepository(application)
     
-    private val _uiState = MutableStateFlow<InspirationUiState>(InspirationUiState.Loading)
-    val uiState: StateFlow<InspirationUiState> = _uiState.asStateFlow()
-    
-    private val _selectedCategory = MutableStateFlow("All")
-    val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
+    private val _uiState = MutableStateFlow<MySnapsUiState>(MySnapsUiState.Loading)
+    val uiState: StateFlow<MySnapsUiState> = _uiState.asStateFlow()
 
     init {
-        fetchRecipes("All")
+        loadSnaps()
     }
 
-    fun selectCategory(category: String) {
-        if (_selectedCategory.value == category) return
-        _selectedCategory.value = category
-        fetchRecipes(category)
-    }
-
-    private fun fetchRecipes(category: String) {
-        _uiState.value = InspirationUiState.Loading
+    fun loadSnaps() {
+        _uiState.value = MySnapsUiState.Loading
         viewModelScope.launch {
             try {
-                val type = if (category == "All") null else category.lowercase()
-                val response = api.searchRecipes(type = type)
-                _uiState.value = InspirationUiState.Success(response.results)
+                val snaps = repository.getSnaps()
+                _uiState.value = MySnapsUiState.Success(snaps)
             } catch (e: Exception) {
-                _uiState.value = InspirationUiState.Error(e.localizedMessage ?: "Failed to fetch recipes")
+                _uiState.value = MySnapsUiState.Error(e.localizedMessage ?: "Failed to load snaps")
+            }
+        }
+    }
+
+    fun toggleFavorite(snap: SavedSnap) {
+        viewModelScope.launch {
+            try {
+                val updatedSnap = snap.copy(isFavorite = !snap.isFavorite)
+                repository.updateSnap(updatedSnap)
+                
+                // Update local state without showing full loading indicator if possible
+                val currentState = _uiState.value
+                if (currentState is MySnapsUiState.Success) {
+                    val updatedSnaps = currentState.snaps.map { 
+                        if (it.id == snap.id) updatedSnap else it 
+                    }
+                    _uiState.value = MySnapsUiState.Success(updatedSnaps)
+                } else {
+                    loadSnaps() // Fallback to full reload
+                }
+            } catch (e: Exception) {
+                // Ignore or log error
             }
         }
     }
 }
+

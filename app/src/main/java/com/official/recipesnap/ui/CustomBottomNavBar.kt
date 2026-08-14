@@ -30,6 +30,8 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -62,9 +64,9 @@ fun CustomBottomNavBar(
     val navItems = listOf(
         NavItem("Snap", Icons.Outlined.CameraAlt),
         NavItem("Build", Icons.Outlined.AddCircleOutline),
-        NavItem("Inspire", Icons.Outlined.AutoAwesome),
-        NavItem("Saved", Icons.Outlined.FavoriteBorder),
-        NavItem("Gallery", Icons.Outlined.GridView)
+        NavItem("My Snaps", Icons.Outlined.AutoAwesome),
+        NavItem("Meal Plan", Icons.Outlined.CalendarToday),
+        NavItem("Grocery", Icons.Outlined.ShoppingCart)
     )
 
     Surface(

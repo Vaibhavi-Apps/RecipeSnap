@@ -17,6 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import android.content.Intent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.ui.text.font.FontWeight
 import io.noties.markwon.Markwon
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -94,7 +99,27 @@ fun RecipePagerCard(
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(16.dp)) {
-            Text(recipe.title, style = MaterialTheme.typography.headlineSmall, color = Color.Black)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(recipe.title, style = MaterialTheme.typography.headlineSmall, color = Color.Black, modifier = Modifier.weight(1f))
+                
+                IconButton(onClick = {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, "${recipe.title}\n\nCalories: ${recipe.calories} kcal\nProtein: ${recipe.protein}g\nCarbs: ${recipe.carbs}g\nFat: ${recipe.fat}g\n\n${recipe.content}")
+                    }
+                    context.startActivity(Intent.createChooser(shareIntent, "Share Recipe"))
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Share,
+                        contentDescription = "Share",
+                        tint = Color(0xFFE8734A)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
             
             // Macros with explicit text labels
@@ -128,6 +153,68 @@ fun RecipePagerCard(
                 } },
                 update = { tv -> markwon.setMarkdown(tv, recipe.content) }
             )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider(color = Color.LightGray)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            val coralColor = Color(0xFFE8734A)
+            
+            Button(
+                onClick = {
+                    val repo = SnapRepository(context)
+                    val snapId = java.util.UUID.randomUUID().toString()
+                    val placeholderUri = "android.resource://${context.packageName}/drawable/example_pasta"
+                    repo.saveSnap(SavedSnap(snapId, placeholderUri, System.currentTimeMillis(), listOf(recipe)))
+                    android.widget.Toast.makeText(context, "Recipe saved to My Snaps", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                border = androidx.compose.foundation.BorderStroke(1.dp, coralColor)
+            ) {
+                Icon(androidx.compose.material.icons.Icons.Outlined.BookmarkBorder, contentDescription = null, tint = coralColor, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Save Recipe", color = coralColor, fontWeight = FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Button(
+                onClick = {
+                    val repo = MealPlanRepository(context)
+                    // We save it to My Meals library for easy planning
+                    repo.saveMyMeal(MyMeal(name = recipe.title, category = MealCategory.DINNER, cookingTime = null, calories = recipe.calories.toInt(), isCustom = true))
+                    android.widget.Toast.makeText(context, "Added to My Meals", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                border = androidx.compose.foundation.BorderStroke(1.dp, coralColor)
+            ) {
+                Text("Add to Meal Plan", color = coralColor, fontWeight = FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Button(
+                onClick = {
+                    val repo = GroceryRepository(context)
+                    // Basic heuristic: parse lines starting with * or - from content
+                    val ingredients = recipe.content.lines().filter { it.trim().startsWith("-") || it.trim().startsWith("*") }
+                    val currentList = repo.getGroceryItems().toMutableList()
+                    ingredients.forEach { line ->
+                        val cleanName = line.replace("-", "").replace("*", "").trim()
+                        currentList.add(GroceryItem(name = cleanName, quantity = "", unit = "", category = GroceryCategories.OTHER, isSuggested = false))
+                    }
+                    repo.saveGroceryItems(currentList)
+                    android.widget.Toast.makeText(context, "Ingredients added to Grocery List", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = coralColor)
+            ) {
+                Text("Add to Grocery List", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

@@ -58,9 +58,8 @@ android {
 }
 
 dependencies {
-
-    dependencies {
-        implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.ktx)
+        implementation("androidx.core:core-splashscreen:1.2.0")
         implementation(libs.androidx.lifecycle.runtime.ktx)
         implementation(libs.androidx.activity.compose)
 
@@ -107,6 +106,4 @@ dependencies {
         
         // Health Connect
         implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
-    }
-
 }

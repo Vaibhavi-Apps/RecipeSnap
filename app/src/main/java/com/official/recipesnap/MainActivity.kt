@@ -58,8 +58,11 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Refresh
 
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             RecipeSnapTheme {
@@ -279,7 +282,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                             onClick = {
                                 val bitmap = uriToBitmap(context, imageUri!!)
                                 if (bitmap != null) {
-                                    viewModel.getRecipeFromImage(bitmap, apiKey)
+                                    viewModel.getRecipeFromImage(bitmap, apiKey, imageUri.toString(), context)
                                 }
                             },
                             modifier = Modifier
@@ -452,7 +455,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                         imageUri = Uri.parse("android.resource://${context.packageName}/${recipe.imageRes}")
                                         // Trigger Get Recipe flow using the example image
                                         val bitmap = android.graphics.BitmapFactory.decodeResource(context.resources, recipe.imageRes)
-                                        viewModel.getRecipeFromImage(bitmap, apiKey)
+                                        viewModel.getRecipeFromImage(bitmap, apiKey, imageUri.toString(), context)
                                         selectedExample = null // Dismiss dialog
                                     },
                                     modifier = Modifier
@@ -467,17 +470,33 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                     }
                 }
             } // closes if (selectedExample != null)
+        } else if (selectedIndex == 1) {
+            Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                BuildRecipeScreen(
+                    viewModel = viewModel,
+                    apiKey = apiKey,
+                    onRecipeGenerated = { }
+                )
+            }
         } else if (selectedIndex == 2) {
             Box(modifier = Modifier.padding(padding).fillMaxSize()) {
                 InspirationScreen()
             }
-            } else {
-                Box(
-                    modifier = Modifier.padding(padding).fillMaxSize(), 
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Coming Soon!", color = Color.Gray, fontSize = 18.sp, fontWeight = FontWeight.Medium)
-                }
+        } else if (selectedIndex == 3) {
+            Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                MealPlanScreen()
+            }
+        } else if (selectedIndex == 4) {
+            Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                GroceryScreen()
+            }
+        } else {
+            Box(
+                modifier = Modifier.padding(padding).fillMaxSize(), 
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Coming Soon!", color = Color.Gray, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            }
             }
         }
     )

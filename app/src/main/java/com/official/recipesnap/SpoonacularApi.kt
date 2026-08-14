@@ -44,9 +44,11 @@ interface SpoonacularApi {
         @Query("apiKey") apiKey: String = BuildConfig.SPOONACULAR_API_KEY,
         @Query("query") query: String? = null,
         @Query("type") type: String? = null,
+        @Query("cuisine") cuisine: String? = null,
         @Query("addRecipeNutrition") addRecipeNutrition: Boolean = true,
         @Query("addRecipeInformation") addRecipeInformation: Boolean = true,
-        @Query("number") number: Int = 15
+        @Query("number") number: Int = 15,
+        @Query("sort") sort: String? = null
     ): SpoonacularResponse
     
     companion object {
