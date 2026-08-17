@@ -57,17 +57,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Refresh
-
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-
+import androidx.compose.material.icons.outlined.Restaurant
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             RecipeSnapTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    RecipeSnapScreen()
+                    var showSplash by remember { mutableStateOf(true) }
+                    
+                    androidx.compose.animation.Crossfade(
+                        targetState = showSplash,
+                        animationSpec = androidx.compose.animation.core.tween(500),
+                        label = "splash_transition"
+                    ) { isSplash ->
+                        if (isSplash) {
+                            com.official.recipesnap.ui.SplashScreen(onContinue = { showSplash = false })
+                        } else {
+                            RecipeSnapScreen()
+                        }
+                    }
                 }
             }
         }
@@ -135,21 +144,61 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "Recipe Snap",
-                            color = darkBrown,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Snap any food, get its recipe instantly",
-                            color = Color.Gray,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Mini Logo
+                        val creamWhite = Color(0xFFFAF8F5)
+                        val coralOrange = Color(0xFFE8734A)
+                        val mutedGreen = Color(0xFF2C564A)
+                        val darkContainer = Color(0xFF1F4A3E)
+
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(darkContainer)
+                                .padding(8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(mutedGreen, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Restaurant,
+                                    contentDescription = "Logo",
+                                    tint = creamWhite,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = 1.dp, y = (-1).dp)
+                                        .background(coralOrange, CircleShape)
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.width(12.dp))
+                        
+                        Column {
+                            Text(
+                                text = "Recipe Snap",
+                                color = darkBrown,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Snap any food, get its recipe instantly",
+                                color = Color.Gray,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
                     }
                     
                     if (previousImageUri != null && previousRecipes != null) {

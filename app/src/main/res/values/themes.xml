@@ -3,9 +3,5 @@
 
     <style name="Theme.RecipeSnap" parent="android:Theme.Material.Light.NoActionBar" />
     
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#FCF9F7</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
-        <item name="postSplashScreenTheme">@style/Theme.RecipeSnap</item>
-    </style>
+    <!-- Removed Theme.App.Starting -->
 </resources>
