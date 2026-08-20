@@ -2,6 +2,7 @@ package com.official.recipesnap
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -46,11 +47,11 @@ fun MealPlanScreen(
         viewModel.loadData()
     }
     
-    val coralColor = Color(0xFFE8734A)
-    val darkBrown = Color(0xFF3E2723)
-    val lightPeach = Color(0xFFFDEDE7)
-    val darkGreen = Color(0xFF2E4B31)
-    val lightCream = Color(0xFFF7F3F0)
+    val coralColor = MaterialTheme.colorScheme.primary
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val lightPeach = MaterialTheme.colorScheme.primaryContainer
+    val darkGreen = MaterialTheme.colorScheme.secondary
+    val lightCream = MaterialTheme.colorScheme.background
     
     var selectedTab by remember { mutableIntStateOf(0) } // 0 = This Week, 1 = My Meals
 
@@ -71,7 +72,7 @@ fun MealPlanScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .background(Color.White, RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
                 .padding(4.dp),
             horizontalArrangement = Arrangement.Center
         ) {
@@ -99,7 +100,7 @@ fun MealPlanScreen(
 
 @Composable
 fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val darkGreen = Color(0xFF2E4B31)
+    val darkGreen = MaterialTheme.colorScheme.secondary
     Box(
         modifier = modifier
             .clickable(onClick = onClick)
@@ -112,7 +113,7 @@ fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit, modifier: 
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color.White else Color.Gray,
+            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp
         )
@@ -134,7 +135,8 @@ fun ThisWeekView(
     val plannedMeals by viewModel.plannedMeals.collectAsState()
     
     val weekDays = viewModel.getWeekDays()
-    val plannedForDate = viewModel.getPlannedMealsForDate(selectedDate)
+    val selectedDateStr = viewModel.formatDateForStorage(selectedDate)
+    val plannedForDate = plannedMeals.filter { it.date == selectedDateStr }
     
     var showSlotPicker by remember { mutableStateOf<MealCategory?>(null) }
     
@@ -156,7 +158,7 @@ fun ThisWeekView(
                     Text(
                         viewModel.formatDateRange(currentWeekStart), 
                         fontSize = 14.sp, 
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     IconButton(onClick = { viewModel.nextWeek() }, modifier = Modifier.size(24.dp)) {
@@ -166,13 +168,14 @@ fun ThisWeekView(
             }
             
             val totalMealsThisWeek = weekDays.sumOf { date -> 
-                viewModel.getPlannedMealsForDate(date).size 
+                val dStr = viewModel.formatDateForStorage(date)
+                plannedMeals.count { it.date == dStr }
             }
             
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .background(Color.White, RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .padding(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Icon(Icons.Outlined.Event, contentDescription = null, tint = darkGreen, modifier = Modifier.size(16.dp))
@@ -192,22 +195,23 @@ fun ThisWeekView(
                 val dayName = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")[cal.get(Calendar.DAY_OF_WEEK) - 1]
                 val dayNum = cal.get(Calendar.DAY_OF_MONTH).toString()
                 val isSelected = date == selectedDate
-                val hasMeals = viewModel.getPlannedMealsForDate(date).isNotEmpty()
+                val dStr = viewModel.formatDateForStorage(date)
+                val hasMeals = plannedMeals.any { it.date == dStr }
                 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .width(48.dp)
-                        .background(if (isSelected) darkGreen else Color.White, RoundedCornerShape(16.dp))
+                        .background(if (isSelected) darkGreen else MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                         .clickable { viewModel.selectDate(date) }
                         .padding(vertical = 12.dp)
                 ) {
-                    Text(dayName, fontSize = 12.sp, color = if (isSelected) Color.White.copy(alpha=0.7f) else Color.Gray)
+                    Text(dayName, fontSize = 12.sp, color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha=0.7f) else MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(dayNum, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = if (isSelected) Color.White else darkBrown)
+                    Text(dayNum, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = if (isSelected) MaterialTheme.colorScheme.onPrimary else darkBrown)
                     if (hasMeals) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Box(modifier = Modifier.size(4.dp).background(if (isSelected) Color.White else coralColor, CircleShape))
+                        Box(modifier = Modifier.size(4.dp).background(if (isSelected) MaterialTheme.colorScheme.onPrimary else coralColor, CircleShape))
                     }
                 }
             }
@@ -276,7 +280,7 @@ fun ThisWeekView(
                     Box(
                         modifier = Modifier
                             .width(200.dp)
-                            .background(Color.White, RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                             .clip(RoundedCornerShape(16.dp))
                             .clickable { onNavigateToRecipe?.invoke(recipe) }
                     ) {
@@ -287,13 +291,13 @@ fun ThisWeekView(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(120.dp)
-                                    .background(Color(0xFFEEEEEE)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentScale = ContentScale.Crop
                             )
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(recipe.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = darkBrown, maxLines = 1)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("${recipe.tags[1]} · 20 min", fontSize = 12.sp, color = Color.Gray)
+                                Text("${recipe.tags[1]} · 20 min", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -304,12 +308,18 @@ fun ThisWeekView(
     }
     
     if (showSlotPicker != null) {
-        ModalBottomSheet(onDismissRequest = { showSlotPicker = null }) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { showSlotPicker = null },
+            sheetState = sheetState
+        ) {
             SlotPickerSheet(
                 category = showSlotPicker!!,
                 viewModel = viewModel,
-                onSelectMyMeal = { myMeal ->
-                    viewModel.addPlannedMeal(selectedDate, showSlotPicker!!, myMeal)
+                onSelectMyMeals = { myMeals ->
+                    myMeals.forEach { myMeal ->
+                        viewModel.addPlannedMeal(selectedDate, showSlotPicker!!, myMeal)
+                    }
                     showSlotPicker = null
                 }
             )
@@ -345,7 +355,7 @@ fun MealSlot(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -358,7 +368,7 @@ fun MealSlot(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(categoryName, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = darkBrown)
                 if (plannedMeals.isNotEmpty()) {
-                    Text(" (${plannedMeals.size})", fontSize = 14.sp, color = Color.Gray)
+                    Text(" (${plannedMeals.size})", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             
@@ -400,7 +410,7 @@ fun MealSlot(
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
-                                .background(Color.White, RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                                 .clip(RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center
                         ) {
@@ -412,7 +422,7 @@ fun MealSlot(
                                     contentScale = ContentScale.Crop
                                 )
                             } else {
-                                Icon(Icons.Outlined.Restaurant, contentDescription = null, tint = Color.LightGray)
+                                Icon(Icons.Outlined.Restaurant, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
                             }
                         }
                         
@@ -424,12 +434,12 @@ fun MealSlot(
                             if (myMeal.cookingTime != null) details.add(myMeal.cookingTime)
                             if (myMeal.calories != null) details.add("${myMeal.calories} kcal")
                             if (details.isNotEmpty()) {
-                                Text(details.joinToString(" · "), fontSize = 12.sp, color = Color.DarkGray)
+                                Text(details.joinToString(" · "), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                         
                         IconButton(onClick = { onRemoveClick(plan.id) }) {
-                            Icon(Icons.Outlined.Close, contentDescription = "Remove", tint = Color.Gray)
+                            Icon(Icons.Outlined.Close, contentDescription = "Remove", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     if (index < plannedMeals.size - 1) {
@@ -441,44 +451,68 @@ fun MealSlot(
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun SlotPickerSheet(
     category: MealCategory,
     viewModel: MealPlanViewModel,
-    onSelectMyMeal: (MyMeal) -> Unit
+    onSelectMyMeals: (List<MyMeal>) -> Unit
 ) {
     val myMeals by viewModel.myMeals.collectAsState()
     val categoryMeals = myMeals.filter { it.category == category }
-    val darkBrown = Color(0xFF3E2723)
-    val coralColor = Color(0xFFE8734A)
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val coralColor = MaterialTheme.colorScheme.primary
+    val darkGreen = MaterialTheme.colorScheme.secondary
 
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    var selectedMeals by remember { mutableStateOf(setOf<MyMeal>()) }
+
+    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f).padding(16.dp)) {
         val categoryName = category.name.lowercase().replaceFirstChar { it.uppercase() }
         Text("Add to $categoryName", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = darkBrown)
         Spacer(modifier = Modifier.height(16.dp))
         
-        Text("My Meals", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+        Text("My Meals", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(8.dp))
         
         if (categoryMeals.isEmpty()) {
-            Text("No meals saved for this category yet.", fontSize = 14.sp, color = Color.Gray)
+            Text("No meals saved for this category yet.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(categoryMeals) { meal ->
+            val pastelColors = listOf(Color(0xFFE8F5E9), Color(0xFFE3F2FD), Color(0xFFFFF3E0), Color(0xFFF3E5F5), Color(0xFFFFF8E1), Color(0xFFFFEBEE))
+            val textColors = listOf(Color(0xFF2E7D32), Color(0xFF1565C0), Color(0xFFE65100), Color(0xFF6A1B9A), Color(0xFFF57F17), Color(0xFFC62828))
+            
+            androidx.compose.foundation.layout.FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                categoryMeals.forEachIndexed { index, meal ->
+                    val isSelected = selectedMeals.contains(meal)
+                    val colorIndex = index % pastelColors.size
+                    val pastelColor = pastelColors[colorIndex]
+                    val textColor = textColors[colorIndex]
+                    
                     Box(
                         modifier = Modifier
-                            .background(Color.White, RoundedCornerShape(12.dp))
-                            .clickable { onSelectMyMeal(meal) }
-                            .padding(12.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(if (isSelected) pastelColor else MaterialTheme.colorScheme.surface)
+                            .then(if (isSelected) Modifier else Modifier.border(1.dp, pastelColor, RoundedCornerShape(16.dp)))
+                            .clickable {
+                                if (isSelected) {
+                                    selectedMeals = selectedMeals - meal
+                                } else {
+                                    selectedMeals = selectedMeals + meal
+                                }
+                            }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
-                        Text(meal.name, color = darkBrown, fontWeight = FontWeight.Medium)
+                        Text(meal.name, color = if (isSelected) textColor else darkBrown, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
         }
         
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Recipe Ideas", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+        Text("Recipe Ideas", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(8.dp))
         
         val examples = listOf(
@@ -492,13 +526,30 @@ fun SlotPickerSheet(
                 Box(
                     modifier = Modifier
                         .background(Color(0xFFFFF3E0), RoundedCornerShape(12.dp))
-                        .clickable { onSelectMyMeal(meal) }
+                        .clickable { onSelectMyMeals(listOf(meal)) }
                         .padding(12.dp)
                 ) {
                     Text(meal.name, color = coralColor, fontWeight = FontWeight.Medium)
                 }
             }
         }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Button(
+            onClick = {
+                if (selectedMeals.isNotEmpty()) {
+                    onSelectMyMeals(selectedMeals.toList())
+                }
+            },
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = coralColor),
+            shape = RoundedCornerShape(12.dp),
+            enabled = selectedMeals.isNotEmpty()
+        ) {
+            Text("Add Selected", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+        }
+        
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
@@ -528,7 +579,7 @@ fun MyMealsView(
         ) {
             Column {
                 Text("My Meals", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = darkBrown)
-                Text("Your go-to meals", fontSize = 14.sp, color = Color.Gray)
+                Text("Your go-to meals", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             
             Button(
@@ -536,7 +587,7 @@ fun MyMealsView(
                 colors = ButtonDefaults.buttonColors(containerColor = coralColor),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("+ Add Meal", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("+ Add Meal", color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
             }
         }
         
@@ -551,7 +602,7 @@ fun MyMealsView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .background(Color.White, RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -561,11 +612,11 @@ fun MyMealsView(
                             if (meal.cookingTime != null) details.add(meal.cookingTime)
                             if (meal.calories != null) details.add("${meal.calories} kcal")
                             if (details.isNotEmpty()) {
-                                Text(details.joinToString(" · "), fontSize = 12.sp, color = Color.Gray)
+                                Text(details.joinToString(" · "), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                         IconButton(onClick = { viewModel.removeMyMeal(meal.id) }) {
-                            Icon(Icons.Outlined.Delete, contentDescription = "Remove", tint = Color.LightGray)
+                            Icon(Icons.Outlined.Delete, contentDescription = "Remove", tint = MaterialTheme.colorScheme.outline)
                         }
                     }
                 }
@@ -596,7 +647,7 @@ fun CustomMealDialog(onDismiss: () -> Unit, onSave: (MyMeal) -> Unit) {
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
@@ -612,7 +663,7 @@ fun CustomMealDialog(onDismiss: () -> Unit, onSave: (MyMeal) -> Unit) {
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Text("Category", fontSize = 14.sp, color = Color.Gray)
+                Text("Category", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MealCategory.values().forEach { cat ->
                         FilterChip(
@@ -726,7 +777,7 @@ fun MealPlanSetupFlow(viewModel: MealPlanViewModel, onComplete: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F3F0))
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -734,11 +785,11 @@ fun MealPlanSetupFlow(viewModel: MealPlanViewModel, onComplete: () -> Unit) {
         if (step == 0) {
             Icon(Icons.Outlined.StarBorder, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color(0xFFE8734A))
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Build Your Meal List", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF3E2723))
+            Text("Build Your Meal List", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 "Add the meals you usually eat so you can quickly plan your week.",
-                fontSize = 16.sp, color = Color.Gray, textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
@@ -749,30 +800,30 @@ fun MealPlanSetupFlow(viewModel: MealPlanViewModel, onComplete: () -> Unit) {
                 Text("Create My Meal List", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text("You can edit this anytime.", fontSize = 12.sp, color = Color.Gray)
+            Text("You can edit this anytime.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            Text("What do you usually eat?", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF3E2723))
-            Text("Select your go-to meals.", fontSize = 14.sp, color = Color.Gray)
+            Text("What do you usually eat?", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+            Text("Select your go-to meals.", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(24.dp))
             
             LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(MealCategory.values()) { category ->
                     Column {
-                        Text(category.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                        Text(category.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(8.dp))
                         predefinedMeals.filter { it.category == category }.forEach { meal ->
                             val isSelected = selectedMeals.contains(meal)
                             Row(
                                 modifier = Modifier
                                     .padding(vertical = 4.dp)
-                                    .background(if (isSelected) Color(0xFF2E4B31) else Color.White, RoundedCornerShape(12.dp))
+                                    .background(if (isSelected) Color(0xFF2E4B31) else MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                                     .clickable {
                                         if (isSelected) selectedMeals -= meal else selectedMeals += meal
                                     }
                                     .padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(meal.name, color = if (isSelected) Color.White else Color(0xFF3E2723), fontWeight = FontWeight.Medium)
+                                Text(meal.name, color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Medium)
                             }
                         }
                     }

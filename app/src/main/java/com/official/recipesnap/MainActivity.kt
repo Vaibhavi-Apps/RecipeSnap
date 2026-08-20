@@ -118,10 +118,10 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
     
     var selectedExample by remember { mutableStateOf<ExampleRecipe?>(null) }
     
-    val backgroundColor = Color(0xFFF7F3F0)
-    val coralColor = Color(0xFFE8734A)
-    val darkBrown = Color(0xFF3E2723)
-    val lightPeach = Color(0xFFFDEDE7)
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val coralColor = MaterialTheme.colorScheme.primary
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val lightPeach = MaterialTheme.colorScheme.primaryContainer
 
     Scaffold(
         containerColor = backgroundColor,
@@ -148,10 +148,10 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         // Mini Logo
-                        val creamWhite = Color(0xFFFAF8F5)
-                        val coralOrange = Color(0xFFE8734A)
-                        val mutedGreen = Color(0xFF2C564A)
-                        val darkContainer = Color(0xFF1F4A3E)
+                        val creamWhite = MaterialTheme.colorScheme.background
+                        val coralOrange = MaterialTheme.colorScheme.primary
+                        val mutedGreen = MaterialTheme.colorScheme.secondary
+                        val darkContainer = MaterialTheme.colorScheme.onSecondaryContainer
 
                         Box(
                             modifier = Modifier
@@ -194,7 +194,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                             )
                             Text(
                                 text = "Snap any food, get its recipe instantly",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 13.sp,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
@@ -294,7 +294,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                 Box(
                                     modifier = Modifier
                                         .size(64.dp)
-                                        .background(Color.White.copy(alpha = 0.5f), CircleShape),
+                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f), CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
@@ -314,7 +314,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "or tap to upload from gallery",
-                                    color = Color.Gray,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 12.sp
                                 )
                             }
@@ -342,21 +342,21 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                         ) {
                             if (isLoading) {
                                 CircularProgressIndicator(
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.surface,
                                     strokeWidth = 2.dp,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = "Getting Recipe...", 
-                                    color = Color.White, 
+                                    color = MaterialTheme.colorScheme.surface, 
                                     fontSize = 16.sp, 
                                     fontWeight = FontWeight.Bold
                                 )
                             } else {
                                 Text(
                                     text = "Get Recipe", 
-                                    color = Color.White, 
+                                    color = MaterialTheme.colorScheme.surface, 
                                     fontSize = 16.sp, 
                                     fontWeight = FontWeight.Bold
                                 )
@@ -381,14 +381,14 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray, thickness = 1.dp)
+                            HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                             Text(
                                 text = "or try an example",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(horizontal = 12.dp)
                             )
-                            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray, thickness = 1.dp)
+                            HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                         }
                         Spacer(modifier = Modifier.height(24.dp))
                         
@@ -445,7 +445,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                     Card(
                         shape = RoundedCornerShape(24.dp),
                         modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column {
                             // Recipe Image
@@ -455,7 +455,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(200.dp)
-                                    .background(Color(0xFFEEEEEE)), // placeholder background
+                                    .background(MaterialTheme.colorScheme.surfaceVariant), // placeholder background
                                 contentScale = ContentScale.Crop
                             )
                             
@@ -492,7 +492,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = recipe.description, 
-                                    color = Color.DarkGray, 
+                                    color = MaterialTheme.colorScheme.onSurface, 
                                     fontSize = 15.sp,
                                     lineHeight = 22.sp
                                 )
@@ -512,7 +512,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                                         .height(54.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = coralColor)
                                 ) {
-                                    Text("Get Recipe", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Text("Get Recipe", color = MaterialTheme.colorScheme.surface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -544,7 +544,7 @@ fun RecipeSnapScreen(viewModel: RecipeViewModel = viewModel()) {
                 modifier = Modifier.padding(padding).fillMaxSize(), 
                 contentAlignment = Alignment.Center
             ) {
-                Text("Coming Soon!", color = Color.Gray, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                Text("Coming Soon!", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 18.sp, fontWeight = FontWeight.Medium)
             }
             }
         }
@@ -588,7 +588,7 @@ fun ExampleCard(recipe: ExampleRecipe, modifier: Modifier = Modifier, onClick: (
         
         Text(
             text = recipe.title,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             modifier = Modifier

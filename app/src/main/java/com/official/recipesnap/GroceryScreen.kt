@@ -37,10 +37,10 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
     val groceryItems by viewModel.groceryItems.collectAsState()
     val weekStart by viewModel.currentWeekStart.collectAsState()
     
-    val darkBrown = Color(0xFF3E2723)
-    val coralColor = Color(0xFFE8734A)
-    val darkGreen = Color(0xFF2E4B31)
-    val lightCream = Color(0xFFF7F3F0)
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val coralColor = MaterialTheme.colorScheme.primary
+    val darkGreen = MaterialTheme.colorScheme.secondary
+    val lightCream = MaterialTheme.colorScheme.background
     
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -62,7 +62,7 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     shape = RoundedCornerShape(24.dp),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 8.dp
                 ) {
                     Row(
@@ -71,7 +71,7 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
                     ) {
                         TextButton(
                             onClick = { viewModel.uncheckAll() },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                         ) {
                             Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
@@ -113,7 +113,7 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
             ) {
                 Column {
                     Text("Grocery List", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = darkBrown)
-                    Text("$completedCount of $totalCount items collected", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
+                    Text("$completedCount of $totalCount items collected", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -140,8 +140,8 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("${(progress * 100).toInt()}% done", fontSize = 12.sp, color = Color.Gray)
-                    Text("${totalCount - completedCount} remaining", fontSize = 12.sp, color = Color.Gray)
+                    Text("${(progress * 100).toInt()}% done", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${totalCount - completedCount} remaining", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             
@@ -154,13 +154,13 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Outlined.ShoppingCart, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
+                    Icon(Icons.Outlined.ShoppingCart, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.outline)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Your Grocery List is Empty", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = darkBrown)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "Add meals to your Meal Plan and we'll suggest the ingredients you need.",
-                        fontSize = 14.sp, color = Color.Gray, textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     Button(
@@ -193,20 +193,20 @@ fun GroceryScreen(viewModel: GroceryViewModel = viewModel()) {
                     // Suggested Items
                     if (suggestedItems.isNotEmpty()) {
                         item {
-                            Text("Suggested for your meals", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                            Text("Suggested for your meals", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 8.dp))
                             
                             suggestedItems.forEach { item ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(bottom = 8.dp)
-                                        .background(Color.White, RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                                         .padding(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(item.name, fontWeight = FontWeight.Medium, color = darkBrown)
-                                        Text("${item.quantity} ${item.unit} · ${item.sourceMealName}", fontSize = 12.sp, color = Color.Gray)
+                                        Text("${item.quantity} ${item.unit} · ${item.sourceMealName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                     TextButton(onClick = { viewModel.acceptSuggestion(item) }) {
                                         Text("+ Add", color = darkGreen, fontWeight = FontWeight.Bold)
@@ -271,7 +271,7 @@ fun GroceryCategoryCard(
 
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column {
@@ -288,20 +288,20 @@ fun GroceryCategoryCard(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(category, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = darkBrown)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("(${items.count { it.isCompleted }}/${items.size})", fontSize = 12.sp, color = Color.Gray)
+                    Text("(${items.count { it.isCompleted }}/${items.size})", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(
                     if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                     contentDescription = null,
-                    tint = Color.Gray
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
             if (expanded) {
-                HorizontalDivider(color = Color(0xFFF0F0F0))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 items.forEach { item ->
                     GroceryItemRow(item, viewModel, darkBrown, darkGreen)
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
@@ -347,7 +347,7 @@ fun GroceryItemRow(
                 text = item.name,
                 fontWeight = FontWeight.Medium,
                 fontSize = 15.sp,
-                color = if (item.isCompleted) Color.Gray else darkBrown,
+                color = if (item.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant else darkBrown,
                 textDecoration = if (item.isCompleted) TextDecoration.LineThrough else null
             )
             val subText = buildString {
@@ -355,7 +355,7 @@ fun GroceryItemRow(
                 if (item.unit.isNotBlank()) append(" ${item.unit}")
                 if (item.sourceMealName != null) append(" · ${item.sourceMealName}")
             }
-            Text(subText, fontSize = 12.sp, color = Color.Gray)
+            Text(subText, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -370,7 +370,7 @@ fun ManualAddItemDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
@@ -395,7 +395,7 @@ fun ManualAddItemDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Text("Category", fontSize = 14.sp, color = Color.Gray)
+                Text("Category", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 // Simple dropdown alternative using exposed dropdown menu
@@ -434,7 +434,7 @@ fun ManualAddItemDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            if (name.isNotBlank() && quantity.isNotBlank()) {
+                            if (name.isNotBlank()) {
                                 onAdd(name, quantity, selectedCategory)
                             }
                         },

@@ -30,7 +30,7 @@ fun RecipeCardStack(
     recipes: List<RecipeOption>
 ) {
     if (recipes.isEmpty()) {
-        Text("No recipes available!", modifier = Modifier.padding(16.dp), color = Color.Gray)
+        Text("No recipes available!", modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
 
@@ -45,7 +45,7 @@ fun RecipeCardStack(
         // Hint for users to know they can swipe
         Text(
             text = "👈 Swipe to see more options 👉", 
-            color = Color.Gray, 
+            color = MaterialTheme.colorScheme.onSurfaceVariant, 
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -68,7 +68,7 @@ fun RecipeCardStack(
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(pagerState.pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) Color(0xFFFFB541) else Color.LightGray
+                val color = if (pagerState.currentPage == iteration) Color(0xFFFFB541) else MaterialTheme.colorScheme.outline
                 Box(
                     modifier = Modifier
                         .padding(4.dp)
@@ -94,7 +94,7 @@ fun RecipePagerCard(
             .fillMaxHeight()
             .padding(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -129,20 +129,20 @@ fun RecipePagerCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Nutrition Facts", style = MaterialTheme.typography.titleMedium, color = Color.DarkGray)
+                    Text("Nutrition Facts", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("🔥 Calories: ${recipe.calories} kcal", color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge)
+                    Text("🔥 Calories: ${recipe.calories} kcal", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("🥩 Protein: ${recipe.protein}g", color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge)
+                    Text("🥩 Protein: ${recipe.protein}g", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("🍞 Carbs: ${recipe.carbs}g", color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge)
+                    Text("🍞 Carbs: ${recipe.carbs}g", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("🥑 Fat: ${recipe.fat}g", color = Color.DarkGray, style = MaterialTheme.typography.bodyLarge)
+                    Text("🥑 Fat: ${recipe.fat}g", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyLarge)
                 }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(color = Color.LightGray)
+            Divider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(16.dp))
             
             AndroidView(
@@ -155,10 +155,10 @@ fun RecipePagerCard(
             )
             
             Spacer(modifier = Modifier.height(24.dp))
-            Divider(color = Color.LightGray)
+            Divider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(16.dp))
             
-            val coralColor = Color(0xFFE8734A)
+            val coralColor = MaterialTheme.colorScheme.primary
             
             Button(
                 onClick = {
@@ -169,7 +169,7 @@ fun RecipePagerCard(
                     android.widget.Toast.makeText(context, "Recipe saved to My Snaps", android.widget.Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, coralColor)
             ) {
                 Icon(androidx.compose.material.icons.Icons.Outlined.BookmarkBorder, contentDescription = null, tint = coralColor, modifier = Modifier.size(20.dp))
@@ -187,7 +187,7 @@ fun RecipePagerCard(
                     android.widget.Toast.makeText(context, "Added to My Meals", android.widget.Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, coralColor)
             ) {
                 Text("Add to Meal Plan", color = coralColor, fontWeight = FontWeight.Bold)
@@ -211,7 +211,7 @@ fun RecipePagerCard(
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = coralColor)
             ) {
-                Text("Add to Grocery List", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Add to Grocery List", color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
             }
             
             Spacer(modifier = Modifier.height(24.dp))

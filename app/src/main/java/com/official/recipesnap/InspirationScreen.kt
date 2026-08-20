@@ -37,9 +37,9 @@ import java.util.*
 fun InspirationScreen(viewModel: InspirationViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     
-    val backgroundColor = Color(0xFFF7F3F0)
-    val darkBrown = Color(0xFF3E2723)
-    val coralColor = Color(0xFFE8734A)
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val coralColor = MaterialTheme.colorScheme.primary
     
     // Refresh snaps on compose
     LaunchedEffect(Unit) {
@@ -77,7 +77,7 @@ fun InspirationScreen(viewModel: InspirationViewModel = viewModel()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Recipes recognised from your photos",
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -102,7 +102,7 @@ fun InspirationScreen(viewModel: InspirationViewModel = viewModel()) {
                 val snaps = (uiState as MySnapsUiState.Success).snaps
                 if (snaps.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "No snaps found. Take a snap to get started!", color = Color.Gray)
+                        Text(text = "No snaps found. Take a snap to get started!", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     LazyColumn(
@@ -127,8 +127,8 @@ fun InspirationScreen(viewModel: InspirationViewModel = viewModel()) {
 
 @Composable
 fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
-    val darkBrown = Color(0xFF3E2723)
-    val coralColor = Color(0xFFE8734A)
+    val darkBrown = MaterialTheme.colorScheme.onBackground
+    val coralColor = MaterialTheme.colorScheme.primary
     
     val context = LocalContext.current
     var showShareSheet by remember { mutableStateOf(false) }
@@ -143,14 +143,14 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
     var showRecipeDialog by remember { mutableStateOf(false) }
     
     val heartColor by animateColorAsState(
-        targetValue = if (snap.isFavorite) coralColor else Color.LightGray,
+        targetValue = if (snap.isFavorite) coralColor else MaterialTheme.colorScheme.outline,
         animationSpec = tween(durationMillis = 300),
         label = "heartColor"
     )
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -159,7 +159,9 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
-                val imageModel = if (snap.imageUri.startsWith("file://")) {
+                val imageModel = if (snap.imageUri.isBlank()) {
+                    R.drawable.example_pasta
+                } else if (snap.imageUri.startsWith("file://")) {
                     java.io.File(snap.imageUri.removePrefix("file://"))
                 } else {
                     snap.imageUri
@@ -203,10 +205,10 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
                             imageVector = Icons.Outlined.AccessTime,
                             contentDescription = "Time",
                             modifier = Modifier.size(12.dp),
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = prepTime, color = Color.Gray, fontSize = 11.sp)
+                        Text(text = prepTime, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                     }
                     
                     Spacer(modifier = Modifier.height(10.dp))
@@ -215,7 +217,7 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
                     val dateString = SimpleDateFormat("MMM dd, yyyy 'at' h:mm a", Locale.US).format(Date(snap.timestamp))
                     Text(
                         text = dateString,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp
                     )
                 }
@@ -235,7 +237,7 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
             }
             
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
             Spacer(modifier = Modifier.height(4.dp))
             
             // Actions Row
@@ -263,7 +265,7 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
                     modifier = Modifier
                         .height(24.dp)
                         .width(1.dp)
-                        .background(Color(0xFFF0F0F0))
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                 )
                 
                 TextButton(
@@ -311,7 +313,7 @@ fun SavedSnapCard(snap: SavedSnap, onFavoriteClick: () -> Unit) {
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .background(Color.White, CircleShape)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Close,
@@ -355,8 +357,8 @@ fun ShareBottomSheet(
         else -> storyText
     }
 
-    val coralColor = Color(0xFFE8734A)
-    val darkBrown = Color(0xFF3E2723)
+    val coralColor = MaterialTheme.colorScheme.primary
+    val darkBrown = MaterialTheme.colorScheme.onBackground
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -378,7 +380,7 @@ fun ShareBottomSheet(
                 verticalAlignment = Alignment.Top
             ) {
                 Column {
-                    Text("Share to Instagram", color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text("Share to Instagram", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(title, color = darkBrown, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 }
@@ -394,7 +396,9 @@ fun ShareBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            val imageModel = if (snap.imageUri.startsWith("file://")) {
+            val imageModel = if (snap.imageUri.isBlank()) {
+                R.drawable.example_pasta
+            } else if (snap.imageUri.startsWith("file://")) {
                 java.io.File(snap.imageUri.removePrefix("file://"))
             } else {
                 snap.imageUri
@@ -404,7 +408,7 @@ fun ShareBottomSheet(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -418,26 +422,28 @@ fun ShareBottomSheet(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(title, color = darkBrown, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("$time • $calories kcal", color = Color.Gray, fontSize = 13.sp)
+                    Text("$time • $calories kcal", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
                 }
                 IconButton(onClick = {
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "image/*"
-                        val contentUri = try {
-                            if (snap.imageUri.startsWith("file://")) {
-                                val imageFile = java.io.File(snap.imageUri.removePrefix("file://"))
-                                androidx.core.content.FileProvider.getUriForFile(
-                                    context,
-                                    "${context.packageName}.provider",
-                                    imageFile
-                                )
-                            } else {
+                        if (snap.imageUri.isNotBlank()) {
+                            val contentUri = try {
+                                if (snap.imageUri.startsWith("file://")) {
+                                    val imageFile = java.io.File(snap.imageUri.removePrefix("file://"))
+                                    androidx.core.content.FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.provider",
+                                        imageFile
+                                    )
+                                } else {
+                                    android.net.Uri.parse(snap.imageUri)
+                                }
+                            } catch (e: Exception) {
                                 android.net.Uri.parse(snap.imageUri)
                             }
-                        } catch (e: Exception) {
-                            android.net.Uri.parse(snap.imageUri)
+                            putExtra(Intent.EXTRA_STREAM, contentUri)
                         }
-                        putExtra(Intent.EXTRA_STREAM, contentUri)
                         putExtra(Intent.EXTRA_TEXT, currentText)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         setPackage("com.instagram.android")
@@ -461,11 +467,11 @@ fun ShareBottomSheet(
                     val isSelected = selectedTab == index
                     Box(
                         modifier = Modifier
-                            .background(if (isSelected) coralColor else Color.White, RoundedCornerShape(20.dp))
+                            .background(if (isSelected) coralColor else MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
                             .clickable { selectedTab = index }
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        Text(tabTitle, color = if (isSelected) Color.White else darkBrown, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(tabTitle, color = if (isSelected) MaterialTheme.colorScheme.onPrimary else darkBrown, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
                 }
             }
@@ -476,7 +482,7 @@ fun ShareBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Text(currentText, color = darkBrown, fontSize = 14.sp, lineHeight = 20.sp)
@@ -516,7 +522,7 @@ fun ShareBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = darkBrown),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Icon(Icons.Outlined.Share, contentDescription = "Share", modifier = Modifier.size(18.dp))
@@ -536,7 +542,7 @@ fun RecipeTag(text: String, bgColor: Color) {
     ) {
         Text(
             text = text,
-            color = Color(0xFF3E2723), // Dark brown
+            color = MaterialTheme.colorScheme.onBackground, // Dark brown
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )

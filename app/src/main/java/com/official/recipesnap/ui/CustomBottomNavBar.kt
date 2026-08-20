@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,7 +79,7 @@ fun CustomBottomNavBar(
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             ),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -89,7 +90,7 @@ fun CustomBottomNavBar(
                 val isSelected = index == selectedIndex
                 
                 val itemColor by animateColorAsState(
-                    targetValue = if (isSelected) Color(0xFFE8734A) else Color(0xFF8B7D77),
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     animationSpec = tween(durationMillis = 300),
                     label = "colorAnimation"
                 )
@@ -146,7 +147,7 @@ fun TabIndicator(isSelected: Boolean) {
                 modifier = Modifier
                     .width(24.dp)
                     .height(3.dp)
-                    .background(Color(0xFFE8734A), CircleShape)
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
             )
         }
     }

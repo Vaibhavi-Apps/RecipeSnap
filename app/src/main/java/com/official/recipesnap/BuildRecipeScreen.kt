@@ -57,13 +57,13 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
         }
     }
 
-    val coralColor = Color(0xFFE8734A)
-    val lightCoral = Color(0xFFFFEFEA)
+    val coralColor = MaterialTheme.colorScheme.primary
+    val lightCoral = MaterialTheme.colorScheme.primaryContainer
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFCF9F7))
+            .background(MaterialTheme.colorScheme.background)
             .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 24.dp)
     ) {
         if (uiState is RecipeUiState.Success) {
@@ -73,7 +73,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     text = "Your Custom Recipe",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF3E2723)
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 TextButton(onClick = { viewModel.resetState() }) {
                     Text("Build Another", color = coralColor, fontWeight = FontWeight.Bold)
@@ -86,12 +86,12 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                 text = "Build a Recipe",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF3E2723)
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = "Pick ingredients, get a custom recipe",
                 fontSize = 14.sp,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -103,13 +103,13 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(if (isSelected) Color(0xFF3E2723) else Color(0xFFEEEEEE))
+                            .background(if (isSelected) MaterialTheme.colorScheme.onBackground else Color(0xFFEEEEEE))
                             .clickable { selectedCategory = category }
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
                             text = category,
-                            color = if (isSelected) Color.White else Color.DarkGray,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 14.sp
                         )
@@ -127,7 +127,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = coralColor,
-                    unfocusedBorderColor = Color.LightGray
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 ),
                 trailingIcon = {
                     if (searchQuery.isNotBlank()) {
@@ -164,10 +164,10 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) lightCoral else Color.White)
+                            .background(if (isSelected) lightCoral else MaterialTheme.colorScheme.surface)
                             .border(
                                 width = 1.dp,
-                                color = if (isSelected) coralColor else Color.LightGray,
+                                color = if (isSelected) coralColor else MaterialTheme.colorScheme.outline,
                                 shape = RoundedCornerShape(12.dp)
                             )
                             .clickable {
@@ -183,7 +183,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     ) {
                         Text(
                             text = ingredient,
-                            color = if (isSelected) coralColor else Color.DarkGray,
+                            color = if (isSelected) coralColor else MaterialTheme.colorScheme.onSurface,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             fontSize = 14.sp
                         )
@@ -207,7 +207,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     text = "${selectedIngredients.size} ingredients selected",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -216,11 +216,11 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color.White)
-                                .border(1.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            Text(ingredient, fontSize = 12.sp, color = Color.DarkGray)
+                            Text(ingredient, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -228,7 +228,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clickable { selectedIngredients = selectedIngredients - ingredient },
-                                tint = Color.Gray
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -239,7 +239,7 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     text = "Select 2–4 ingredients",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(24.dp)) // height of selected pills area
             }
@@ -266,23 +266,23 @@ fun BuildRecipeScreen(viewModel: RecipeViewModel, apiKey: String, onRecipeGenera
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (canGenerate) coralColor else Color.LightGray,
-                    disabledContainerColor = Color.LightGray
+                    containerColor = if (canGenerate) coralColor else MaterialTheme.colorScheme.outline,
+                    disabledContainerColor = MaterialTheme.colorScheme.outline
                 ),
                 enabled = canGenerate && !isLoading
             ) {
                 if (isLoading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.surface, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Creating your recipe...", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Creating your recipe...", color = MaterialTheme.colorScheme.surface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 } else if (!canGenerate) {
                     if (count < 2) {
-                        Text("✨ Select ${2 - count} more to continue", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("✨ Select ${2 - count} more to continue", color = MaterialTheme.colorScheme.surface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     } else if (count > 4) {
-                        Text("You can select up to 4 ingredients.", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("You can select up to 4 ingredients.", color = MaterialTheme.colorScheme.surface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 } else {
-                    Text("✨ Generate Recipe", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("✨ Generate Recipe", color = MaterialTheme.colorScheme.surface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
